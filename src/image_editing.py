@@ -4,6 +4,9 @@
 import logging
 import os
 
+# my lib
+from src import data_paths
+
 # external
 import cv2
 import numpy as np
@@ -23,6 +26,9 @@ logger = logging.getLogger(__name__)
 def load_images(dir_path):
 	""" Read cv2 images from directory path parameter and return array. """
 
+	#dir_path = data_paths.directory_path(__file__,'/data/raw_image_sets')
+	#dir_path = data_paths.directory_path(__file__, dir_path)
+
 	# ensure directory exists
 	assert os.path.exists(dir_path)
 	assert os.path.isdir(dir_path)
@@ -40,6 +46,20 @@ def load_images(dir_path):
 
 	logger.info('loaded %d images', len(images))
 	return images
+
+def write_images(images, file_paths):
+	""" write cv2 images to file paths at coresponding indexs """
+
+	assert len(images) == len(file_paths)
+	logger.info('Writing %d images', len(images))
+
+	for img, fpath in zip(images, file_paths):
+		directory_path = os.path.dirname(fpath)
+		if not os.path.exists(directory_path):
+			os.makedirs(directory_path)
+		cv2.imwrite(fpath, img)
+
+	logger.info('Finished writing %d images', len(images))
 
 #
 # Images Transformations
@@ -80,7 +100,7 @@ def breakup_image(image, sub_image_dimesions):
 	width, height = image.shape[:2]
 
 	#sub image dimesions
-	sub_images_width, sub_images_height = dimesions
+	sub_images_width, sub_images_height = sub_image_dimesions
 
 	sub_images = []
 
@@ -103,7 +123,7 @@ def breakup_image(image, sub_image_dimesions):
 			# add crop to sub_image list iif it meets specified dimensions
 			new_width, new_height = crop.shape[:2]
 			if (new_width == sub_images_width) and (new_height == sub_images_height):
-				images.append(crop)
+				sub_images.append(crop)
 
 		# shift x position markers
 		y_bottom_marker += sub_images_height
@@ -154,6 +174,9 @@ def expand_image_array_vary_brightness(image_array, gamma_range, number):
 		specified by the parameters detaling gamma_range (tuple(low,high)) 
 		and number of images to generate. Suggestion: keep gamma range between 0.5 and 2."""
 
+	# assert number is valid
+	assert number > 0
+
 	# ensure gamma range is valid
 	low, high = gamma_range
 	assert low > 0
@@ -169,19 +192,46 @@ def expand_image_array_vary_brightness(image_array, gamma_range, number):
 	expanded_image_array = []
 	for img in image_array:
 		for g in gamma_values:
-			expanded_image_array.append(img,g)
+			gamma_adjusted_img = adjust_gamma(img,g)
+			expanded_image_array.append(gamma_adjusted_img)
 
+	logger.info('%d images in new set after varying brightness', len(expanded_image_array))
 	return expanded_image_array
 
 def add_rotated_images(image_array):
-	full_image_array = []
-	for img in image_array:
-		full_image_array.append(img)
-		full_image_array.append(rotateImage(img, 90))
-		full_image_array.append(rotateImage(img, 180))
-		full_image_array.append(rotateImage(img, 270))
-	return full_image_array
+	""" Expand array of cv2 images by rotating images in 90 increments. """
 
+	expanded_image_array = []
+	for img in image_array:
+		expanded_image_array.append(img)
+		expanded_image_array.append(rotate_image(img, 90))
+		expanded_image_array.append(rotate_image(img, 180))
+		expanded_image_array.append(rotate_image(img, 270))
+
+	logger.info('%d images in new set after varying brightness', len(expanded_image_array))
+	return expanded_image_array
+
+def expand_image_array_by_breaking_images(image_array, sub_image_dimesions, sub_images_per_image):
+	""" Expand array of cv2 images by breaking up images into parts.
+		Parameter is image list and tuple containing dimesions of sub images. """
+
+	expanded_image_array = []
+	if sub_images_per_image > 1:	# [Todo]: imgrpove segmenting
+		for img in image_array:						
+				expanded_image_array += breakup_image(img, sub_image_dimesions)[:sub_images_per_image]
+		return expanded_image_array
+	else:
+		return image_array
+
+"""
+def expand_image_array_by_breaking_images(image_array, sub_image_dimesions):
+	#Expand array of cv2 images by breaking up images into parts.
+	#	Parameter is image list and tuple containing dimesions of sub images.
+
+	expanded_image_array = []
+	for img in image_array:
+		expanded_image_array += breakup_image(img, sub_image_dimesions)
+	return expanded_image_array
 
 def sub_imagesize(img, sub_images_width=100, sub_images_height=100):
 	images = []
@@ -214,3 +264,4 @@ def sub_images_images(image_array, sub_images_dim_tuple):
 	for img in image_array:
 		full_image_array += sub_imagesize(img,sub_images_width, sub_images_height)
 	return full_image_array
+"""
