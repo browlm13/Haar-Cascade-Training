@@ -98,7 +98,7 @@ def generate_samples_for_all_raw_image_sets(sample_settings):
 		image_editing.write_images(samples, file_paths)
 
 		# write info file
-		### info file path may need modified file path for each file path
+		### info file path may need modified file path for each file path 
 		tail = '\n' #Default Negitive Tail
 		if set_type == 'positive':
 			sample_width = sample_settings['POSITIVE_SAMPLES']['Sample Image Width']
@@ -107,10 +107,21 @@ def generate_samples_for_all_raw_image_sets(sample_settings):
 			# using assumtions : num objects, x1, y1, x2 ,y2
 			tail = " 1 0 0 %d %d\n" % image_dimensions
 
-		tails = [tail] * len(file_paths)
-		pairs = zip(file_paths, tails)
-		lines = [ p[0] + p[1] for p in pairs]
 		info_file_path = ds['path']['info file']
+		
+		#relative paths from info file (not working)
+		relative_file_paths = [os.path.relpath(fp, info_file_path) for fp in file_paths]
+
+		#absolute paths
+		absolute_file_paths = list(map(os.path.abspath,file_paths))
+
+
+		#NOTE: opencv_createsamples img -info positive_basketballs.txt -vec ../vector_files/positive_basketballs.vec -w 20 -h 20 -num 500
+		#		Must be run from same directory as info file
+
+		tails = [tail] * len(absolute_file_paths)
+		pairs = zip(absolute_file_paths, tails)
+		lines = [ p[0] + p[1] for p in pairs]
 		with open(info_file_path, 'w') as f:
 			for l in lines: f.write(l)
 

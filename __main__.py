@@ -10,6 +10,7 @@ from src import image_editing
 from src import data_paths
 from src import create_samples
 from src import config_handler
+from src import opencv_haar_cascade_cmds
 
 # logging
 logging.basicConfig(level=logging.INFO)
@@ -28,7 +29,12 @@ if __name__ == '__main__':
 	#
 	# generate samples and info files for all raw image sets
 	#
-	create_samples.generate_samples_for_all_raw_image_sets(sample_settings)
+	#create_samples.generate_samples_for_all_raw_image_sets(sample_settings)
+
+	#
+	# build positive .vec files
+	#
+	opencv_haar_cascade_cmds.create_vector_file(sample_settings)
 
 
 
