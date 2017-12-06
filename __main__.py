@@ -32,14 +32,16 @@ if __name__ == '__main__':
 	#
 	# build positive .vec files
 	#
-	#opencv_haar_cascade_cmds.create_vector_file(sample_settings)
+	opencv_haar_cascade_cmds.create_vector_file(sample_settings)
 
 	#
 	# train
 	#
+	number_of_stages = 5
+	opencv_haar_cascade_cmds.train_cascades(sample_settings,number_of_stages)
 
 	#
 	# test detection
 	#
-	cascade_file_path = '../haar_cascades/data/working_data/cascades/cascade.xml'
-	test_detection.test_cascade_recognition(cascade_file_path,1.01,1)
+	#cascade_file_path = '../haar_cascades/data/working_data/cascades/positive_basketballs/cascade.xml'
+	#test_detection.test_cascade_recognition(cascade_file_path,1.01,1)
