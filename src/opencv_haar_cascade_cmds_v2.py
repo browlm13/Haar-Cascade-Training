@@ -23,6 +23,10 @@ logger = logging.getLogger(__name__)
 def create_vector_file(sample_settings):
 
 	#
+	# Note: must start from root directory
+	#
+
+	#
 	# read positive sample settings
 	#
 
@@ -64,9 +68,8 @@ def train_cascades(model_name, positive_dataset_name, negitive_dataset_name, sam
 		and negitive_dataset_name must contain the full directory names. """
 	
 	#
-	# first switch to root directory
+	# Note: must start from root directory
 	#
-	os.chdir('../haar_cascades')
 
 	#
 	# change current working directory to info file directory
@@ -128,6 +131,13 @@ def train_cascades(model_name, positive_dataset_name, negitive_dataset_name, sam
 	# create cascade directory inside model directory
 	model_cascade_directory_path = model_directory_path + '/cascade'
 	os.makedirs(model_cascade_directory_path)
+
+	print(os.getcwd())
+	print('positive_dataset_name')
+	print(positive_dataset_name)
+	print('negitive_dataset_name')
+	print(negitive_dataset_name)
+	print('\n\n\n')
 
 	# run training command
 	template_cmd = 'opencv_traincascade -data %s -vec ../vector_files/%s.vec -bg %s.txt -numPos %d -numNeg %d -numStages %d -w %d -h %d'

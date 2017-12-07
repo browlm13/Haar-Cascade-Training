@@ -84,7 +84,6 @@ def generate_samples_for_all_raw_image_sets(sample_settings):
 		if set_type == 'negitive':
 			samples = generate_samples(raw_images, sample_settings['NEGITIVE_SAMPLES'])
 
-
 		#
 		# save
 		#
@@ -108,7 +107,7 @@ def generate_samples_for_all_raw_image_sets(sample_settings):
 			tail = " 1 0 0 %d %d\n" % image_dimensions
 
 		info_file_path = ds['path']['info file']
-		
+
 		#relative paths from info file (not working)
 		relative_file_paths = [os.path.relpath(fp, info_file_path) for fp in file_paths]
 
