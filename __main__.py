@@ -10,7 +10,7 @@ from src import image_editing
 from src import data_paths
 from src import create_samples
 from src import config_handler
-from src import opencv_haar_cascade_cmds
+from src import opencv_haar_cascade_cmds_v2 as opencv_haar_cascade_cmds
 from src import test_detection
 
 # logging
@@ -32,13 +32,14 @@ if __name__ == '__main__':
 	#
 	# build positive .vec files
 	#
-	opencv_haar_cascade_cmds.create_vector_file(sample_settings)
+	#opencv_haar_cascade_cmds.create_vector_file(sample_settings)
 
 	#
 	# train
 	#
-	number_of_stages = 5
-	opencv_haar_cascade_cmds.train_cascades(sample_settings,number_of_stages)
+	number_of_stages = 1
+	numPos = 10
+	opencv_haar_cascade_cmds.train_cascades('mock1', 'positive_basketballs', 'negitive_backgrounds', sample_settings, numPos, number_of_stages)
 
 	#
 	# test detection

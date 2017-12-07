@@ -8,6 +8,10 @@ import glob
 # external
 import cv2
 
+# logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 """
 	Opencv Haar Cascade commands
 """
@@ -59,7 +63,7 @@ def create_vector_file(sample_settings):
 		cmd = template_cmd % (dsn, dsn, width, height, size)
 		os.system(cmd)
 
-def train_cascades(sample_settings, numStages):
+def train_cascades(model_name, sample_settings, numStages):			#add model name parameter
 
 	#opencv_traincascade -data ../cascades -vec ../vector_files/positive_basketballs.vec -bg negitive_backgrounds.txt -numPos 500 -numNeg 500 -numStages 5 -w 20 -h 20
 	#currently only option is to use default negitive_backgrounds.txt
@@ -108,11 +112,28 @@ def train_cascades(sample_settings, numStages):
 	for dsn in positive_info_file_dataset_names:
 		# find number of image files for each dataset (numPos)
 		glob_template = '../generated_samples/%s/*' % dsn
-		numPos = int(len(glob.glob(glob_template))/10)	
+		numPos = int(len(glob.glob(glob_template))/10)				#make this numPos a parameter
 
 		glob_template = '../generated_samples/%s/*' % background_dataset_name
 		numNeg = len(glob.glob(glob_template))
 
-		template_cmd = 'opencv_traincascade -data ../cascades/%s -vec ../vector_files/%s.vec -bg %s.txt -numPos %d -numNeg %d -numStages %d -w %d -h %d'
-		cmd = template_cmd % (dsn, dsn, background_dataset_name, numPos, numNeg, numStages, width, height)
+		#
+		#	create directory first
+		#
+		model_directory_path = '../cascades/' + model_name
+		model_log_directory_path = model_directory_path + '/logs'
+
+		if not os.path.exists(model_directory_path):
+			os.makedirs(model_directory_path)
+			os.makedirs(model_log_directory_path)
+		else: 
+			logger.error('model with name %s already exists', model_name)
+			return 0
+
+		#
+		#	also desgin sytem for diffrent model with log of settings
+		#
+
+		template_cmd = 'opencv_traincascade -data ../cascades/%s/cascade -vec ../vector_files/%s.vec -bg %s.txt -numPos %d -numNeg %d -numStages %d -w %d -h %d'
+		cmd = template_cmd % (model_name, dsn, background_dataset_name, numPos, numNeg, numStages, width, height)
 		os.system(cmd)
